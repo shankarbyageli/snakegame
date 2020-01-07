@@ -1,0 +1,169 @@
+<html>
+
+<body>
+  <canvas id="canvas" style="border: 3px solid black"></canvas>
+  <div id="score"
+    style="float: right; margin: 10px 20px; color: green; font-family: Arial, Helvetica, sans-serif;font-size: 20px;">
+    Score : 0 </div>
+</body>
+<script>
+
+  let width = screen.width - 30;
+  let height = screen.height - 250;
+
+  let snake = [
+    { dir: 1, x: 35, y: 5 },
+    { dir: 1, x: 30, y: 5 },
+    { dir: 1, x: 25, y: 5 },
+    { dir: 1, x: 20, y: 5 },
+    { dir: 1, x: 15, y: 5 },
+    { dir: 1, x: 10, y: 5 },
+    { dir: 1, x: 5, y: 5 },
+    { dir: 1, x: 0, y: 5 }
+  ];
+
+  let food = {
+  };
+
+  let score = 0;
+
+  let autoRunGame = function () {
+    let keyStroke = ["w", "d", "s", "a"];
+    let headDir = snake[0].dir;
+    let autoGamePlay = gamePlay.bind(null, { key: keyStroke[headDir] });
+    autoGamePlay();
+  };
+
+  let changeDirection = function (direction) {
+    snake[0].dir = direction;
+    moveIndir();
+    for (let i = snake.length - 1; i >= 0; i--) {
+      if (snake[i].dir != (snake[i - 1] || snake[i]).dir) {
+        snake[i].dir = snake[i - 1].dir;
+      }
+    }
+  };
+
+  let moveIndir = function () {
+    let operations = ["y -= 5", "x += 5", "y += 5", "x -= 5"];
+    for (i in snake) {
+      let operation = snake[i].dir;
+      eval(`snake[i].${operations[operation]}`);
+    }
+  };
+
+  let drawSnakeAndFood = function (snake, food) {
+    document.getElementById('score').innerHTML = `Score : ${score}`;
+    for (i in snake) {
+      ctx.fillStyle = '#000000'
+      ctx.fillRect(snake[i].x, snake[i].y, 5, 5);
+      ctx.fillStyle = '#FF0000';
+      ctx.fillRect(food.x, food.y, 5, 5);
+    }
+  };
+
+  let printScore = function (score) {
+    let rows = height;
+    let columns = width;
+  };
+
+  let generateNewFood = function () {
+    x = Math.ceil(Math.random() * (width - 10));
+    y = Math.ceil(Math.random() * (height - 10));
+    food.x = x;
+    food.y = y;
+  };
+
+  let crashedToWall = function () {
+    return (
+      snake[0].x < 0 ||
+      snake[0].y < 0 ||
+      snake[0].x >= width || snake[0].y >= height
+    );
+  };
+
+  let isTouchBody = function () {
+    for (i in snake) {
+      if (i == 0) continue;
+      if (snake[0].x == snake[i].x && snake[0].y == snake[i].y) {
+        return true;
+      }
+    }
+    return false;
+  };
+
+  let foodAteCdn = function () {
+    return ((snake[0].x + 3) >= (food.x - 2) && (snake[0].x - 2) <= (food.x + 2)) &&
+      (((snake[0].y + 2) >= (food.y - 2) && (snake[0].y - 2) <= (food.y + 2)))
+  }
+
+  let checkFoodAte = function () {
+    if (foodAteCdn()) {
+      score += 5;
+      generateNewFood();
+      let newTail = getNewTailCords();
+      obj = {
+        dir: snake[snake.length - 1].dir,
+        x: newTail.x,
+        y: newTail.y
+      };
+      snake.push(obj);
+    }
+  };
+
+  let gameOverMsg = function (string) {
+    document.write(`<h1 style="color: red; font-family: Arial, Helvetica, sans-serif; text-align:center; font-size: 100px;"> Game Over! <br> Score : ${score} </h1>`)
+  };
+
+  let getNewTailCords = function () {
+    let operations = [
+      ["x", "y+5"],
+      ["x-5", "y"],
+      ["x", "y-5"],
+      ["x+5", "y"]
+    ];
+    let tail = {};
+    let tailDir = snake[snake.length - 1].dir;
+    tail.x = eval(`snake[snake.length-1].${operations[tailDir][0]}`);
+    tail.y = eval(`snake[snake.length-1].${operations[tailDir][1]}`);
+    return tail;
+  };
+
+  let gamePlay = function (event) {
+    let input = event.key;
+    input == "q" && gameOverMsg("You exited the game !");
+    let keyStroke = ["w", "d", "s", "a"];
+    let moveDir = keyStroke.indexOf(input);
+
+    if (moveDir != -1) {
+      if (Math.abs(moveDir - snake[0].dir) == 2) {
+        return;
+      }
+      changeDirection(moveDir);
+    }
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawSnakeAndFood(snake, food);
+    checkFoodAte(snake, food);
+
+    isTouchBody() && gameOverMsg("Touched the snake body !");
+    crashedToWall() && gameOverMsg("Crashed to wall !");
+  };
+
+  var c = document.getElementById("canvas");
+  var ctx = c.getContext("2d");
+
+  document.addEventListener("keypress", gamePlay, false);
+
+  let main = function () {
+    document.getElementById('canvas').width = width;
+    document.getElementById('canvas').height = height;
+    setInterval(autoRunGame, 100);
+    generateNewFood();
+  };
+
+  main();
+
+</script>
+
+
+</html>
