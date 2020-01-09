@@ -149,8 +149,8 @@
     crashedToWall() && gameOverMsg("Crashed to wall !");
   };
 
-  var c = document.getElementById("canvas");
-  var ctx = c.getContext("2d");
+  const c = document.getElementById("canvas");
+  let ctx = c.getContext("2d");
 
   document.addEventListener("keypress", gamePlay, false);
 
